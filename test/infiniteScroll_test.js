@@ -2,7 +2,7 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 import { expect } from 'chai';
 import { stub, spy } from 'sinon';
-import InfiniteScroll from '../src/InfiniteScroll';
+import { InfiniteScroll } from '../src/InfiniteScroll';
 
 describe('InfiniteScroll component', () => {
   it('should render', () => {
