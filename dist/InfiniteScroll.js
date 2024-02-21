@@ -115,10 +115,16 @@ var InfiniteScroll = (function(_Component) {
       value: function componentDidUpdate() {
         if (this.props.isReverse && this.loadMore) {
           var parentElement = this.getParentElement(this.scrollComponent);
+          // For vertical
           parentElement.scrollTop =
             parentElement.scrollHeight -
             this.beforeScrollHeight +
             this.beforeScrollTop;
+          // For horizontal
+          parentElement.scrollLeft =
+            parentElement.scrollWidth -
+            this.beforeScrollWidth +
+            this.beforeScrollLeft;
           this.loadMore = false;
         }
         this.attachScrollListener();
@@ -287,14 +293,23 @@ var InfiniteScroll = (function(_Component) {
             document.documentElement ||
             document.body.parentNode ||
             document.body;
+          // For vertical
           var scrollTop =
             scrollEl.pageYOffset !== undefined
               ? scrollEl.pageYOffset
               : doc.scrollTop;
+          // For horizontal
+          var scrollLeft =
+            scrollEl.pageXOffset !== undefined
+              ? scrollEl.pageXOffset
+              : doc.scrollLeft;
           if (this.props.isReverse) {
             offset = scrollTop;
           } else {
-            offset = this.calculateOffset(el, scrollTop);
+            offset = this.calculateOffset(
+              el,
+              this.props.isHorizontal ? scrollLeft : scrollTop
+            );
           }
         } else if (this.props.isReverse) {
           offset = parentNode.scrollTop;
@@ -310,8 +325,12 @@ var InfiniteScroll = (function(_Component) {
           el.offsetParent !== null
         ) {
           this.detachScrollListener();
+          // For vertical
           this.beforeScrollHeight = parentNode.scrollHeight;
           this.beforeScrollTop = parentNode.scrollTop;
+          // For horizontal
+          this.beforeScrollWidth = parentNode.scrollWidth;
+          this.beforeScrollLeft = parentNode.scrollLeft;
           // Call loadMore after detachScrollListener to allow for non-async loadMore functions
           if (typeof this.props.loadMore === 'function') {
             this.props.loadMore((this.pageLoaded += 1));
@@ -322,15 +341,16 @@ var InfiniteScroll = (function(_Component) {
     },
     {
       key: 'calculateOffset',
-      value: function calculateOffset(el, scrollTop) {
+      value: function calculateOffset(el, scroll) {
         if (!el) {
           return 0;
         }
 
-        return (
-          this.calculateTopPosition(el) +
-          (el.offsetHeight - scrollTop - window.innerHeight)
-        );
+        return this.props.isHorizontal
+          ? this.calculateLeftPosition(el) +
+              (el.offsetWidth - scroll - window.innerWidth)
+          : this.calculateTopPosition(el) +
+              (el.offsetHeight - scroll - window.innerHeight);
       }
     },
     {
@@ -340,6 +360,15 @@ var InfiniteScroll = (function(_Component) {
           return 0;
         }
         return el.offsetTop + this.calculateTopPosition(el.offsetParent);
+      }
+    },
+    {
+      key: 'calculateLeftPosition',
+      value: function calculateLeftPosition(el) {
+        if (!el) {
+          return 0;
+        }
+        return el.offsetWidth + this.calculateLeftPosition(el.offsetParent);
       }
     },
     {
@@ -411,6 +440,7 @@ InfiniteScroll.propTypes = {
   hasMore: _propTypes2.default.bool,
   initialLoad: _propTypes2.default.bool,
   isReverse: _propTypes2.default.bool,
+  isHorizontal: _propTypes2.default.bool,
   loader: _propTypes2.default.node,
   loadMore: _propTypes2.default.func.isRequired,
   pageStart: _propTypes2.default.number,
@@ -429,6 +459,7 @@ InfiniteScroll.defaultProps = {
   threshold: 250,
   useWindow: true,
   isReverse: false,
+  isHorizontal: false,
   useCapture: false,
   loader: null,
   getScrollParent: null
