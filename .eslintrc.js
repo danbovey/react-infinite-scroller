@@ -1,29 +1,35 @@
-const fs = require('fs');
-
-const prettierOptions = JSON.parse(fs.readFileSync('./.prettierrc', 'utf8'));
-
 module.exports = {
-  extends: ['last', 'prettier', 'prettier/react', 'plugin:react/recommended'],
-  plugins: ['react', 'prettier'],
+  extends: [
+    'prettier',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:@typescript-eslint/recommended',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react', 'prettier', '@typescript-eslint'],
+  root: true,
   env: {
     browser: true,
+    jest: true,
   },
-  globals: {
-    describe: true,
-    it: true,
-    module: true,
-    exports: true,
-    require: true
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
   rules: {
-    'prettier/prettier': ['error', prettierOptions],
-    'no-unused-vars': [
+    'prettier/prettier': ['error'],
+    '@typescript-eslint/no-unused-vars': [
       'off',
       {
         vars: 'all',
         args: 'after-used',
-        ignoreRestSiblings: false
-      }
-    ]
-  }
+        ignoreRestSiblings: false,
+      },
+    ],
+  },
 };

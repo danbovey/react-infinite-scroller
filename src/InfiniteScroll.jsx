@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 
-export default class InfiniteScroll extends Component {
+export default class InfiniteScroll extends React.Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     element: PropTypes.node,
@@ -15,7 +15,7 @@ export default class InfiniteScroll extends Component {
     getScrollParent: PropTypes.func,
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
-    useWindow: PropTypes.bool
+    useWindow: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -29,7 +29,7 @@ export default class InfiniteScroll extends Component {
     isReverse: false,
     useCapture: false,
     loader: null,
-    getScrollParent: null
+    getScrollParent: null,
   };
 
   constructor(props) {
@@ -69,7 +69,7 @@ export default class InfiniteScroll extends Component {
     const testOptions = {
       get passive() {
         passive = true;
-      }
+      },
     };
 
     try {
@@ -87,11 +87,11 @@ export default class InfiniteScroll extends Component {
     if (this.isPassiveSupported()) {
       options = {
         useCapture: this.props.useCapture,
-        passive: true
+        passive: true,
       };
     } else {
       options = {
-        passive: false
+        passive: false,
       };
     }
     return options;
@@ -111,7 +111,7 @@ export default class InfiniteScroll extends Component {
     scrollEl.removeEventListener(
       'mousewheel',
       this.mousewheelListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
   }
 
@@ -124,12 +124,12 @@ export default class InfiniteScroll extends Component {
     scrollEl.removeEventListener(
       'scroll',
       this.scrollListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
     scrollEl.removeEventListener(
       'resize',
       this.scrollListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
   }
 
@@ -161,17 +161,17 @@ export default class InfiniteScroll extends Component {
     scrollEl.addEventListener(
       'mousewheel',
       this.mousewheelListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
     scrollEl.addEventListener(
       'scroll',
       this.scrollListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
     scrollEl.addEventListener(
       'resize',
       this.scrollListener,
-      this.options ? this.options : this.props.useCapture
+      this.options ? this.options : this.props.useCapture,
     );
 
     if (this.props.initialLoad) {
@@ -214,7 +214,8 @@ export default class InfiniteScroll extends Component {
     // Here we make sure the element is visible as well as checking the offset
     if (
       offset < Number(this.props.threshold) &&
-      (el && el.offsetParent !== null)
+      el &&
+      el.offsetParent !== null
     ) {
       this.detachScrollListener();
       this.beforeScrollHeight = parentNode.scrollHeight;
@@ -249,7 +250,7 @@ export default class InfiniteScroll extends Component {
     const renderProps = this.filterProps(this.props);
     const {
       children,
-      element,
+      element: Element,
       hasMore,
       initialLoad,
       isReverse,
@@ -264,7 +265,7 @@ export default class InfiniteScroll extends Component {
       ...props
     } = renderProps;
 
-    props.ref = node => {
+    props.ref = (node) => {
       this.scrollComponent = node;
       if (ref) {
         ref(node);
@@ -274,13 +275,19 @@ export default class InfiniteScroll extends Component {
     const childrenArray = [children];
     if (hasMore) {
       if (loader) {
-        isReverse ? childrenArray.unshift(loader) : childrenArray.push(loader);
+        if (isReverse) {
+          childrenArray.unshift(loader);
+        } else {
+          childrenArray.push(loader);
+        }
       } else if (this.defaultLoader) {
-        isReverse
-          ? childrenArray.unshift(this.defaultLoader)
-          : childrenArray.push(this.defaultLoader);
+        if (isReverse) {
+          childrenArray.unshift(this.defaultLoader);
+        } else {
+          childrenArray.push(this.defaultLoader);
+        }
       }
     }
-    return React.createElement(element, props, childrenArray);
+    return <Element {...props}>{childrenArray}</Element>;
   }
 }
